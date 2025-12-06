@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Visual Summarizer</title>
+  <link rel="stylesheet" href="../static/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <div>
+        <h1>Visual Summarizer</h1>
+        <p class="subtitle">Upload an image, and get a detailed description of its contents.</p>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <form method="post" enctype="multipart/form-data" class="upload-form" id="uploadForm">
+      <div class="file-control">
+        <!-- Hidden native input for accessibility; the label acts as the visible button -->
+        <input id="fileInput" name="file" type="file" accept=".jpg,.jpeg,.png,.gif,.webp,.bmp,.tiff,.svg" class="file-input-hidden" required>
+        <label for="fileInput" class="btn file-btn" id="fileBtn">Choose image</label>
+        <span class="file-name" id="fileName">No file chosen</span>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn primary" id="submitBtn" disabled>Summarize Image</button>
+      </div>
+    </form>
+
+    {% if uploaded_image %}
+      <section class="results">
+        <div class="column">
+          <h2>Uploaded Image</h2>
+          <img src="{{ url_for('static', filename=uploaded_image) }}" alt="Uploaded Image" class="image-preview">
+        </div>
+        <div class="column">
+          <h2>Image Summary</h2>
+          <pre class="text-box">{{ summary|e }}</pre>
+        </div>
+      </section>
+    {% endif %}
+  </main>
+
+  <script>
+    (function() {
+      const fileInput = document.getElementById('fileInput');
+      const fileName = document.getElementById('fileName');
+      const submitBtn = document.getElementById('submitBtn');
+      const fileBtn = document.getElementById('fileBtn');
+
+      fileInput.addEventListener('change', function() {
+        const f = fileInput.files && fileInput.files[0];
+        if (f) {
+          // Shorten long filenames for display
+          const name = f.name;
+          fileName.textContent = name.length > 48 ? name.slice(0, 24) + '…' + name.slice(-24) : name;
+          submitBtn.disabled = false;
+          fileBtn.textContent = 'Change';
+        } else {
+          fileName.textContent = 'No file chosen';
+          submitBtn.disabled = true;
+          fileBtn.textContent = 'Choose image';
+        }
+      });
+
+      // Allow pressing Enter/Space on the label to trigger file picker
+      fileBtn.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          fileInput.click();
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
